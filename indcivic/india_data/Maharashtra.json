@@ -1,0 +1,18 @@
+{
+    "Mumbai": [
+        "Andheri",
+        "Borivali",
+        "Dadar",
+        "Colaba"
+    ],
+    "Pune": [
+        "Shivajinagar",
+        "Kothrud",
+        "Hinjewadi"
+    ],
+    "Nagpur": [
+        "Sitabuldi",
+        "Dharampeth",
+        "Mahal"
+    ]
+}
