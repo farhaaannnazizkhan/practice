@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>indcivic | Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    :root { --dash-sidebar-width: 280px; }
+
+    body {
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(at 0% 0%, rgba(79,70,229,0.10) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(255,107,0,0.05) 0px, transparent 50%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Layout ── */
+    .dashboard-container {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+      flex: 1;
+      display: grid;
+      grid-template-columns: var(--dash-sidebar-width) 1fr;
+      gap: 30px;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      height: fit-content;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 100px;
+    }
+
+    .user-profile-widget {
+      text-align: center;
+      padding-bottom: 25px;
+      border-bottom: 1px solid var(--glass-border);
+      margin-bottom: 25px;
+    }
+
+    .user-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--saffron));
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--white);
+      font-family: 'Outfit', sans-serif;
+      box-shadow: 0 0 24px rgba(79,70,229,0.4);
+    }
+
+    .user-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+    .user-email { font-size: 0.78rem; color: var(--text-muted); word-break: break-all; }
+
+    .user-role-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-radius: 20px;
+      margin-top: 10px;
+    }
+    .badge-citizen { background: rgba(0,168,107,0.15); color: var(--green-accent); border: 1px solid rgba(0,168,107,0.25); }
+    .badge-admin   { background: rgba(255,107,0,0.15);  color: var(--saffron);      border: 1px solid rgba(255,107,0,0.25); }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: var(--transition);
+      cursor: pointer;
+      margin-bottom: 4px;
+    }
+    .sidebar-link.active,
+    .sidebar-link:hover {
+      color: var(--white);
+      background: rgba(255,255,255,0.05);
+    }
+    .sidebar-link.active { border-left: 3px solid var(--primary); }
+
+    .logout-sidebar {
+      margin-top: 30px;
+      width: 100%;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      color: var(--danger);
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+    .logout-sidebar:hover { background: var(--danger); color: var(--white); box-shadow: 0 0 16px rgba(239,68,68,0.3); }
+
+    /* ── Main panel ── */
+    .main-panel { display: flex; flex-direction: column; gap: 28px; }
+
+    .welcome-card {
+      background: linear-gradient(135deg, rgba(15,23,42,0.85), rgba(79,70,229,0.18));
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .welcome-card::after {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -8%;
+      width: 280px; height: 280px;
+      background: radial-gradient(circle, rgba(79,70,229,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .welcome-title { font-size: 2.1rem; margin-bottom: 6px; }
+    .welcome-sub   { font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+
+    /* ── Stats ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+    .stat-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      position: relative;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+    .stat-val   { font-size: 2rem; font-weight: 800; font-family: 'Outfit', sans-serif; display: block; }
+    .stat-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; display: block; }
+    .stat-dot   { position: absolute; top: 18px; right: 18px; width: 10px; height: 10px; border-radius: 50%; }
+
+    /* ── Content Grid ── */
+    .content-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 28px; }
+
+    .panel-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 28px;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+    .panel-title {
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--glass-border);
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* ── Form ── */
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .form-group label { font-size: 0.82rem; font-weight: 600; color: var(--text-muted); }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 11px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: var(--transition);
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px rgba(79,70,229,0.22);
+      background: rgba(255,255,255,0.08);
+    }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+    .form-group select option { background: #0f172a; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 22px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      font-family: inherit;
+    }
+    .btn.primary  { background: var(--primary); color: var(--white); }
+    .btn.primary:hover  { box-shadow: 0 0 16px rgba(79,70,229,0.4); transform: translateY(-1px); }
+    .btn.success  { background: var(--success); color: var(--white); }
+    .btn.danger-outline { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+    .btn.danger-outline:hover { background: var(--danger); color: var(--white); }
+    .btn-block { width: 100%; }
+    .btn-sm    { padding: 7px 13px; font-size: 0.78rem; border-radius: 6px; }
+
+    /* ── Grievance list ── */
+    .grievance-list { display: flex; flex-direction: column; gap: 14px; }
+    .grievance-item {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 18px;
+      transition: var(--transition);
+    }
+    .grievance-item:hover { background: rgba(255,255,255,0.04); transform: translateY(-2px); }
+    .g-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .g-title  { font-size: 1.05rem; font-weight: 700; font-family: 'Outfit'; color: var(--white); }
+    .g-desc   { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; }
+    .g-footer { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); }
+
+    .status-pill { padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+    .status-pending    { background: rgba(239,68,68,0.13); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); }
+    .status-inprogress { background: rgba(245,158,11,0.13); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+    .status-resolved   { background: rgba(16,185,129,0.13); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .status-forceclose { background: rgba(148,163,184,0.13); color: var(--text-muted); border: 1px solid rgba(148,163,184,0.2); }
+
+    .cat-tag { background: rgba(79,70,229,0.13); color: var(--primary-light); border: 1px solid rgba(79,70,229,0.2); padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; }
+
+    .admin-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+
+    /* ── Toast ── */
+    .dash-toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      padding: 14px 22px;
+      border-radius: var(--radius);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transform: translateY(120px);
+      transition: var(--transition);
+      opacity: 0;
+    }
+    .dash-toast.active { transform: translateY(0); opacity: 1; }
+    .dash-toast-icon  { font-size: 1.1rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .dashboard-container { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .content-grid { grid-template-columns: 1fr; }
+      .stats-grid   { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Navbar ─────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="logo">
+      <span class="logo-ind">ind</span><span class="logo-civic">civic</span>
+    </div>
+    <ul class="nav-links">
+      <li><span id="nav-user-label" style="color:var(--text-muted);font-size:0.9rem;"></span></li>
+      <li><button class="nav-btn-link" onclick="doLogout()">Log Out</button></li>
+    </ul>
+  </nav>
+
+  <!-- ── Main Container ─────────────────────────────── -->
+  <div class="dashboard-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="user-profile-widget">
+        <div class="user-avatar" id="avatar-initials">?</div>
+        <p class="user-name" id="profile-name">Loading…</p>
+        <p class="user-email" id="profile-email">…</p>
+        <span class="user-role-badge badge-citizen" id="profile-badge">Citizen</span>
+      </div>
+
+      <div class="sidebar-link active">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Dashboard Overview
+      </div>
+
+      <div id="residence-info" style="margin-top:20px;font-size:0.82rem;color:var(--text-muted);line-height:1.7;"></div>
+
+      <button class="logout-sidebar" onclick="doLogout()">Log Out</button>
+    </aside>
+
+    <!-- Main Panel -->
+    <main class="main-panel">
+
+      <!-- Welcome banner -->
+      <div class="welcome-card">
+        <h1 class="welcome-title" id="welcome-title">Welcome!</h1>
+        <div class="welcome-sub">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--saffron)" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span id="location-text">Verifying session…</span>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" id="stats-grid"></div>
+
+      <!-- Content grid -->
+      <div class="content-grid">
+        <div class="panel-card">
+          <h2 class="panel-title" id="list-title">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Grievances
+          </h2>
+          <div id="grievance-container"></div>
+        </div>
+
+        <div class="panel-card" id="right-panel"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="dash-toast" id="dash-toast">
+    <span class="dash-toast-icon" id="dt-icon">✓</span>
+    <div>
+      <p id="dt-title"  style="font-weight:700;font-size:0.92rem;font-family:'Outfit';"></p>
+      <p id="dt-msg"    style="font-size:0.82rem;color:var(--text-muted);"></p>
+    </div>
+  </div>
+
+  <script>
+    // ================================================================
+    //  CLIENT-SIDE SESSION & DATABASE (mirrors script.js logic)
+    // ================================================================
+    const DB = {
+      getUsers() {
+        try { return JSON.parse(localStorage.getItem('ic_users') || '[]'); } catch { return []; }
+      },
+      findUserById(id) {
+        return this.getUsers().find(u => u.id === id) || null;
+      }
+    };
+
+    const Session = {
+      get() {
+        try {
+          const raw = localStorage.getItem('ic_token');
+          return raw ? JSON.parse(atob(raw)) : null;
+        } catch { return null; }
+      },
+      clear() {
+        localStorage.removeItem('ic_token');
+        localStorage.removeItem('ic_userName');
+      },
+      getCurrentUser() {
+        const s = this.get();
+        return s ? DB.findUserById(s.id) : null;
+      }
+    };
+
+    // ── ROUTE GUARD ──────────────────────────────────────────────────
+    const currentUser = Session.getCurrentUser();
+    if (!currentUser) {
+      alert('Access Denied. Please log in to view the dashboard.');
+      window.location.href = 'index.html';
+    }
+
+    // ================================================================
+    //  GRIEVANCE LOCAL DB
+    // ================================================================
+    const SEED_GRIEVANCES = [
+      {
+        id: 'GR-9821', title: 'Large Potholes on Main Road',
+        category: 'Road Infrastructure',
+        description: 'Multiple deep potholes near the Sector 15 signal are causing accidents and delays.',
+        city: 'Dwarka', state: 'Delhi', ward: '150',
+        reporter: 'demo_citizen', status: 'In Progress',
+        createdAt: new Date(Date.now() - 86400000).toISOString()
+      },
+      {
+        id: 'GR-8314', title: 'Garbage Overflow at Colony Gate',
+        category: 'Sanitation',
+        description: 'Garbage bin at the main gate has not been cleared for 4 days, causing severe odour.',
+        city: 'Bengaluru City', state: 'Karnataka', ward: '15',
+        reporter: 'demo_citizen', status: 'Pending',
+        createdAt: new Date(Date.now() - 43200000).toISOString()
+      }
+    ];
+
+    function getGrievances() {
+      const s = localStorage.getItem('ic_grievances');
+      if (!s) { localStorage.setItem('ic_grievances', JSON.stringify(SEED_GRIEVANCES)); return SEED_GRIEVANCES; }
+      try { return JSON.parse(s); } catch { return []; }
+    }
+    function saveGrievances(list) { localStorage.setItem('ic_grievances', JSON.stringify(list)); }
+
+    // ================================================================
+    //  TOAST
+    // ================================================================
+    function toast(title, msg, isErr = false) {
+      const t = document.getElementById('dash-toast');
+      const icon = document.getElementById('dt-icon');
+      document.getElementById('dt-title').innerText = title;
+      document.getElementById('dt-msg').innerText   = msg;
+      icon.innerText = isErr ? '✕' : '✓';
+      icon.style.color = isErr ? 'var(--danger)' : 'var(--success)';
+      t.style.borderColor = isErr ? 'var(--danger)' : 'var(--success)';
+      t.classList.add('active');
+      setTimeout(() => t.classList.remove('active'), 4000);
+    }
+
+    // ================================================================
+    //  STATUS PILL HELPER
+    // ================================================================
+    function statusPill(status) {
+      const cls = { 'Pending':'pending', 'In Progress':'inprogress', 'Resolved':'resolved', 'Force Close':'forceclose' }[status] || 'pending';
+      return `<span class="status-pill status-${cls}">${status}</span>`;
+    }
+
+    // ================================================================
+    //  RENDER DASHBOARD
+    // ================================================================
+    function boot() {
+      // Navbar label
+      document.getElementById('nav-user-label').innerText = `Hello, ${currentUser.name}`;
+
+      // Avatar initials
+      const parts = currentUser.name.split(/[\s_-]+/).filter(Boolean);
+      const initials = parts.length >= 2
+        ? (parts[0][0] + parts[1][0]).toUpperCase()
+        : currentUser.name.substring(0, 2).toUpperCase();
+      document.getElementById('avatar-initials').innerText = initials;
+
+      // Sidebar info
+      document.getElementById('profile-name').innerText  = currentUser.name;
+      document.getElementById('profile-email').innerText = currentUser.email;
+      const badge = document.getElementById('profile-badge');
+      badge.innerText   = currentUser.role === 'admin' ? 'Admin' : 'Citizen';
+      badge.className   = `user-role-badge ${currentUser.role === 'admin' ? 'badge-admin' : 'badge-citizen'}`;
+
+      const res = currentUser.residence || {};
+      if (currentUser.role === 'citizen' && res.city) {
+        document.getElementById('residence-info').innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <span>📍 ${res.city}</span>
+            <span>${res.district}, ${res.state}</span>
+            <span>Ward: ${res.ward}</span>
+          </div>`;
+      }
+
+      // Welcome banner
+      document.getElementById('welcome-title').innerText = `Welcome, ${currentUser.name}!`;
+      document.getElementById('location-text').innerText = currentUser.role === 'admin'
+        ? 'Municipal Board – Administrator Mode'
+        : `${res.city || 'N/A'}, ${res.state || 'N/A'} · Ward ${res.ward || 'N/A'}`;
+
+      renderStats();
+      renderLayout();
+    }
+
+    function renderStats() {
+      const all      = getGrievances();
+      const mine     = currentUser.role === 'citizen' ? all.filter(g => g.reporter === currentUser.name) : all;
+      const total    = mine.length;
+      const pending  = mine.filter(g => g.status === 'Pending').length;
+      const progress = mine.filter(g => g.status === 'In Progress').length;
+      const resolved = mine.filter(g => g.status === 'Resolved').length;
+
+      const labels = currentUser.role === 'admin'
+        ? ['Total Grievances', 'Pending Review', 'In Resolution', 'Resolved']
+        : ['My Reports', 'Pending', 'In Progress', 'Resolved'];
+
+      document.getElementById('stats-grid').innerHTML = [
+        { val: total,    color: 'var(--primary)', label: labels[0] },
+        { val: pending,  color: 'var(--danger)',  label: labels[1] },
+        { val: progress, color: 'var(--warning)', label: labels[2] },
+        { val: resolved, color: 'var(--success)', label: labels[3] },
+      ].map(s => `
+        <div class="stat-card">
+          <div class="stat-dot" style="background:${s.color};"></div>
+          <span class="stat-val" style="color:${s.color};">${s.val}</span>
+          <span class="stat-label">${s.label}</span>
+        </div>`).join('');
+    }
+
+    function renderLayout() {
+      if (currentUser.role === 'admin') {
+        document.getElementById('list-title').innerHTML = `
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg> District Grievance Queue`;
+
+        document.getElementById('right-panel').innerHTML = `
+          <h2 class="panel-title">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg> Authority Console
+          </h2>
+          <p style="font-size:0.88rem;margin-bottom:14px;">You have administrative privileges to manage all grievances in this district.</p>
+          <div style="background:rgba(255,107,0,0.05);border:1px solid rgba(255,107,0,0.2);padding:16px;border-radius:10px;">
+            <h4 style="color:var(--saffron);font-family:'Outfit';margin-bottom:6px;">SLA Reminder</h4>
+            <p style="color:var(--text-muted);font-size:0.83rem;">All Pending reports must be reviewed within 48 hours of filing to maintain ward compliance rankings.</p>
+          </div>`;
+        renderAdminQueue();
+      } else {
+        document.getElementById('list-title').innerHTML = `
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14"/>
+          </svg> My Grievance Filings`;
+
+        document.getElementById('right-panel').innerHTML = `
+          <h2 class="panel-title">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14"/>
+            </svg> File a New Grievance
+          </h2>
+          <form onsubmit="event.preventDefault(); fileGrievance();">
+            <div class="form-group">
+              <label>Grievance Title *</label>
+              <input type="text" id="g-title" placeholder="Short description of the issue" required>
+            </div>
+            <div class="form-group">
+              <label>Category *</label>
+              <select id="g-cat" required>
+                <option value="">Select category…</option>
+                <option>Road Infrastructure</option>
+                <option>Sanitation</option>
+                <option>Water Supply &amp; Drainage</option>
+                <option>Electricity &amp; Streetlights</option>
+                <option>Public Safety</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Detailed Description *</label>
+              <textarea id="g-desc" placeholder="Mention exact location, severity, and any other relevant details…" required></textarea>
+            </div>
+            <button type="submit" class="btn primary btn-block">Submit Report</button>
+          </form>`;
+        renderCitizenList();
+      }
+    }
+
+    // ── Citizen: list ────────────────────────────────────────────────
+    function renderCitizenList() {
+      const list = getGrievances().filter(g => g.reporter === currentUser.name);
+      const c    = document.getElementById('grievance-container');
+      if (!list.length) {
+        c.innerHTML = `<div class="empty-state">
+          <p>You haven't filed any reports yet.</p>
+          <p style="font-size:0.82rem;margin-top:6px;">Use the form on the right to submit a new grievance.</p>
+        </div>`;
+        return;
+      }
+      c.innerHTML = `<div class="grievance-list">${list.map(g => `
+        <div class="grievance-item">
+          <div class="g-header">
+            <span class="cat-tag">${g.category}</span>
+            ${statusPill(g.status)}
+          </div>
+          <h3 class="g-title">${g.title}</h3>
+          <p class="g-desc">${g.description}</p>
+          <div class="g-footer">
+            <span>ID: ${g.id}</span>
+            <span>${new Date(g.createdAt).toLocaleDateString('en-IN')}</span>
+          </div>
+        </div>`).join('')}
+      </div>`;
+    }
+
+    // ── Citizen: file ────────────────────────────────────────────────
+    function fileGrievance() {
+      const title = document.getElementById('g-title').value.trim();
+      const cat   = document.getElementById('g-cat').value;
+      const desc  = document.getElementById('g-desc').value.trim();
+      if (!title || !cat || !desc) { toast('Missing Fields', 'Fill in all fields before submitting.', true); return; }
+
+      const res  = currentUser.residence || {};
+      const list = getGrievances();
+      list.unshift({
+        id: 'GR-' + Math.floor(1000 + Math.random() * 9000),
+        title, category: cat, description: desc,
+        city: res.city || 'N/A', state: res.state || 'N/A', ward: res.ward || 'N/A',
+        reporter: currentUser.name,
+        status: 'Pending',
+        createdAt: new Date().toISOString()
+      });
+      saveGrievances(list);
+      toast('Report Submitted', 'Your complaint has been logged and routed to local authorities.');
+
+      document.getElementById('g-title').value = '';
+      document.getElementById('g-cat').value   = '';
+      document.getElementById('g-desc').value  = '';
+      renderStats();
+      renderCitizenList();
+    }
+
+    // ── Admin: queue ─────────────────────────────────────────────────
+    function renderAdminQueue() {
+      const list = getGrievances();
+      const c    = document.getElementById('grievance-container');
+      if (!list.length) { c.innerHTML = '<div class="empty-state">No grievances currently queued.</div>'; return; }
+
+      c.innerHTML = `<div class="grievance-list">${list.map(g => `
+        <div class="grievance-item">
+          <div class="g-header">
+            <span class="cat-tag">${g.category}</span>
+            ${statusPill(g.status)}
+          </div>
+          <h3 class="g-title">${g.title}</h3>
+          <p class="g-desc">${g.description}</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">
+            <span>Reporter: <strong style="color:var(--text);">${g.reporter}</strong></span>
+            <span>${g.city}, ${g.state} · Ward ${g.ward}</span>
+            <span>ID: ${g.id}</span>
+            <span>${new Date(g.createdAt).toLocaleDateString('en-IN')}</span>
+          </div>
+          <div class="admin-actions">
+            ${g.status === 'Pending'      ? `<button class="btn primary btn-sm" onclick="setStatus('${g.id}','In Progress')">Dispatch</button>` : ''}
+            ${g.status === 'In Progress'  ? `<button class="btn success btn-sm"  onclick="setStatus('${g.id}','Resolved')">Mark Resolved</button>` : ''}
+            ${g.status !== 'Resolved' && g.status !== 'Force Close'
+              ? `<button class="btn danger-outline btn-sm" onclick="setStatus('${g.id}','Force Close')">Force Close</button>` : ''}
+            ${g.status === 'Resolved' ? `<span style="font-size:0.78rem;color:var(--success);font-weight:700;">✓ Closed</span>` : ''}
+          </div>
+        </div>`).join('')}
+      </div>`;
+    }
+
+    function setStatus(id, newStatus) {
+      const list = getGrievances();
+      const item = list.find(g => g.id === id);
+      if (item) {
+        item.status = newStatus;
+        saveGrievances(list);
+        toast('Status Updated', `Complaint ${id} → ${newStatus}`);
+        renderStats();
+        renderAdminQueue();
+      }
+    }
+
+    function doLogout() {
+      Session.clear();
+      window.location.href = 'index.html';
+    }
+
+    // ── Boot ─────────────────────────────────────────────────────────
+    boot();
+  </script>
+
+</body>
+</html>
